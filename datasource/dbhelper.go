@@ -17,7 +17,7 @@ var (
 )
 
 //主库  单例模式
-func instanceMaster() *xorm.Engine {
+func InstanceMaster() *xorm.Engine {
 	if masterEngine != nil {
 		 return masterEngine
 	}
@@ -47,7 +47,7 @@ func instanceMaster() *xorm.Engine {
 	return masterEngine
 }
 
-func instanceSlave() *xorm.Engine  {
+func InstanceSlave() *xorm.Engine  {
 	if slaveEngine != nil {
 		return slaveEngine
 	}

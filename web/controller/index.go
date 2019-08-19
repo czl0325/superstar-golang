@@ -23,9 +23,29 @@ func (c* IndexController) Get() mvc.Result {
 }
 
 func (c* IndexController) GetBy(id int) mvc.Result  {
-	return nil
+	if id < 1 {
+		return mvc.Response{
+			Path: "/",
+		}
+	}
+	data := c.Service.Get(id)
+	return mvc.View{
+		Name: "info.html",
+		Data: iris.Map {
+			"Title" : "球星库",
+			"Data" : data,
+		},
+	}
 }
 
 func (c* IndexController) GetSearch() mvc.Result  {
-	return nil
+	country := c.Ctx.URLParam("country")
+	dataList := c.Service.Search(country)
+	return mvc.View{
+		Name: "info.html",
+		Data: iris.Map {
+			"Title" : "球星库",
+			"DataList" : dataList,
+		},
+	}
 }

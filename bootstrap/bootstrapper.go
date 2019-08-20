@@ -6,7 +6,6 @@ import (
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/middleware/recover"
 	"github.com/kataras/iris/sessions"
-	"github.com/kataras/iris/websocket"
 	"superstar/conf"
 	"time"
 )
@@ -68,15 +67,16 @@ func (b *Bootstrapper) SetupSessions(expires time.Duration, cookieHashKey, cooki
 }
 
 // SetupWebsockets prepares the websocket server.
-func (b *Bootstrapper) SetupWebsockets(endpoint string, onConnection websocket.ConnectionFunc) {
-	ws := websocket.New(websocket.Config{})
-	ws.OnConnection(onConnection)
-
-	b.Get(endpoint, ws.Handler())
-	b.Any("/iris-ws.js", func(ctx iris.Context) {
-		ctx.Write(websocket.ClientSource)
-	})
-}
+//func (b *Bootstrapper) SetupWebsockets(endpoint string,
+//	onConnection websocket.ConnectionFunc) {
+//	ws := websocket.New(websocket.Config{})
+//	ws.OnConnection(onConnection)
+//
+//	b.Get(endpoint, ws.Handler())
+//	b.Any("/iris-ws.js", func(ctx iris.Context) {
+//		ctx.Write(websocket.ClientSource)
+//	})
+//}
 
 // SetupErrorHandlers prepares the http error handlers
 // `(context.StatusCodeNotSuccessful`,  which defaults to < 200 || >= 400 but you can change it).
@@ -101,7 +101,7 @@ func (b *Bootstrapper) SetupErrorHandlers() {
 
 const (
 	// StaticAssets is the root directory for public assets like images, css, js.
-	StaticAssets = "./public/"
+	StaticAssets = "./web/public/"
 	// Favicon is the relative 9to the "StaticAssets") favicon path for our app.
 	Favicon = "favicon.ico"
 )
@@ -117,7 +117,7 @@ func (b *Bootstrapper) Configure(cs ...Configurator) {
 //
 // Returns itself.
 func (b *Bootstrapper) Bootstrap() *Bootstrapper {
-	b.SetupViews("./views")
+	b.SetupViews("./web/views")
 	b.SetupSessions(24*time.Hour,
 		[]byte("the-big-and-secret-fash-key-here"),
 		[]byte("lot-secret-of-characters-big-too"),
@@ -126,7 +126,7 @@ func (b *Bootstrapper) Bootstrap() *Bootstrapper {
 
 	// static files
 	b.Favicon(StaticAssets + Favicon)
-	b.StaticWeb(StaticAssets[1:len(StaticAssets)-1], StaticAssets)
+	b.HandleDir(StaticAssets[1:len(StaticAssets)-1], StaticAssets)
 
 	// middleware, after static files
 	b.Use(recover.New())

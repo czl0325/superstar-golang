@@ -15,5 +15,5 @@ func newApp() *bootstrap.Bootstrapper  {
 
 func main()  {
 	app := newApp()
-	app.Listen(":8080")
+	app.Listen("localhost:8080")
 }

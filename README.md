@@ -2,15 +2,71 @@
 golang后台实现的球星库
 
 
-本文主要是对golang的iris库，xorm库的应用。
-首先你要安装iris库，本库安装比较麻烦，具体参考我的另外一篇文章  [泪流满面的golang1.12.7-iris库安装配置全过程](https://www.jianshu.com/p/1d6cde7d355c)
-PS: go mod tidy -v.  自动下载依赖包，同时删除多余的包
+根据一凡老师教程自己一步一步敲的，中间遇到很多坑。列举下：
 
-1。 创建conf文件夹，创建db.go文件，配置一下自己的数据库。
 
-2.  使用navicat创建superstar的数据库，建立一张表
-![](https://upload-images.jianshu.io/upload_images/2587882-d8ae1f66cd6e668b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000)
+1.   shared/layout.html错误
+```
+[ERRO] 2019/03/19 15:45 html/template: "shared/layout.html" is undefined
+[INFO] 2019/03/19 15:45 500 29.252036ms ::1 GET /
+[ERRO] 2019/03/19 15:45 html/template: "shared/layout.html" is undefined
+```
 
-3.  通过xorm工具来生成models
+这个是路径的问题，修改下路径
+在bootstrapper.go  中
+```
+func (b *Bootstrapper) Bootstrap() *Bootstrapper {
+	b.SetupViews("./web/views")
+	b.SetupSessions(24*time.Hour,
+		[]byte("the-big-and-secret-fash-key-here"),
+		[]byte("lot-secret-of-characters-big-too"),
+	)
+	b.SetupErrorHandlers()
 
-4.  
+	// static files
+	b.Favicon(StaticAssets + Favicon)
+	b.HandleDir(StaticAssets[1:len(StaticAssets)-1], StaticAssets)
+
+	// middleware, after static files
+	b.Use(recover.New())
+	b.Use(logger.New())
+
+	return b
+}
+```
+关键在于b.SetupViews("./web/views")，views是在web目录下，多写一个web目录
+
+
+2.  StaticAssets 路径报错
+
+同理，需要web目录
+```
+const (
+	// StaticAssets is the root directory for public assets like images, css, js.
+	StaticAssets = "./web/public/"
+	// Favicon is the relative 9to the "StaticAssets") favicon path for our app.
+	Favicon = "favicon.ico"
+)
+```
+
+3. bootstrap的css样式加载不出来
+
+同理，加入web目录
+```
+<link href="/web/public/css/bootstrap.min.css" rel="stylesheet">
+```
+
+```
+<script src="/web/public/js/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/web/public/js/jquery.min.js"><\/script>')</script>
+<script src="/web/public/js/bootstrap.min.js"></script>
+```
+
+4. edit.html报错
+错误在于本句话
+```
+{{if gt .info.Id 0}}编辑{{else}}添加{{end}}球员信息
+```
+语法错误，但是不知道怎么改？暂时替换成   "添加球员信息"  成功！
+
+5.  最后一个问题，为什么老是的xorm生成的model有form。我的没有？？？何解？？？
